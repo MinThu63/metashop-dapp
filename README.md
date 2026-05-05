@@ -427,16 +427,13 @@ truffle test test/SimpleEscrow.test.js
 
 ## Team
 
-Built by **Team 5** — Class C373-C003 (January 2026)
+Built collaboratively by a team of 6 developers as part of a polytechnic blockchain development module (January 2026).
 
-| Student ID | Contribution Area |
-|-----------|-------------------|
-| 24037830 | OrderBook contract, order management |
-| 24028806 | OrderBook contract, order management |
-| 24018346 | LoyaltyToken contract, rewards system |
-| 24036948 | LoyaltyToken contract, rewards system |
-| 24024636 | SimpleEscrow contract, payment flow |
-| 24038263 | SimpleEscrow contract, payment flow |
+| Area | Contributors |
+|------|-------------|
+| OrderBook contract & order management | 2 members |
+| LoyaltyToken contract & rewards system | 2 members |
+| SimpleEscrow contract & payment flow | 2 members |
 
 ---
 
