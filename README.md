@@ -378,16 +378,6 @@ Register → Connect Wallet → Add Products (stored on-chain)
 
 ---
 
-## Screenshots
-
-### Home Page — Product Grid
-![Home Page](public/images/Screenshot%202026-01-26%20101924.png)
-
-### Seller Dashboard — Analytics
-![Seller Dashboard](public/images/Screenshot%202024-08-22%20004735.png)
-
----
-
 ## Environment Variables
 
 | Variable | Default | Description |
