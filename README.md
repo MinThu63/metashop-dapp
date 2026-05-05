@@ -437,6 +437,14 @@ Built collaboratively by a team of 6 developers as part of a polytechnic blockch
 
 ---
 
+## Documentation
+
+For a detailed written explanation of the project (design decisions, implementation details, and reflections), see:
+
+📄 [Project Report (PDF)](docs/C373FA_C003_T5_KyawMinThu.pdf)
+
+---
+
 ## License
 
 This project was developed for educational purposes as part of a polytechnic module on blockchain application development.
