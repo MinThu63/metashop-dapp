@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.1/web3.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background-color: var(--primary) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 0.75rem 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .grid-container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 1.5rem; 
+            padding: 1.5rem 0; 
+        }
+        
+        .product-card { 
+            background: white; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08); 
+            transition: all 0.3s ease; 
+            border: 1px solid #e9ecef;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .product-card img { 
+            width: 100%; 
+            height: 200px; 
+            object-fit: cover; 
+        }
+        
+        .product-card-body { 
+            padding: 1.25rem; 
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-title { 
+            font-weight: 600; 
+            font-size: 1.1rem; 
+            margin-bottom: 0.5rem; 
+            color: var(--primary); 
+            line-height: 1.3;
+        }
+        
+        .product-category { 
+            color: #6c757d; 
+            font-size: 0.85rem; 
+            margin-bottom: 0.75rem; 
+        }
+        
+        .product-price { 
+            font-weight: 700; 
+            font-size: 1.3rem; 
+            color: var(--success); 
+            margin-bottom: 1rem; 
+        }
+        
+        .product-meta { 
+            display: flex; 
+            gap: 0.5rem; 
+            flex-wrap: wrap; 
+            margin-top: auto;
+        }
+        
+        .product-meta .btn { 
+            flex: 1; 
+            min-width: 70px; 
+            font-size: 0.9rem; 
+            padding: 0.5rem 0.5rem; 
+        }
+
+        .product-meta form {
+            flex: 1;
+        }
+
+        .product-meta form .btn {
+            width: 100%;
+        }
+        
+        .stats-container { 
+            background: white; 
+            border-radius: 10px; 
+            padding: 1rem 1.5rem; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+            border: 1px solid #e9ecef;
+            display: inline-block;
+        }
+        
+        .account-badge { 
+            background-color: var(--accent); 
+            color: white; 
+            padding: 0.25rem 0.75rem; 
+            border-radius: 20px; 
+            font-size: 0.8rem; 
+            font-weight: 500;
+        }
+        
+        .loading-indicator { 
+            padding: 60px; 
+            text-align: center; 
+            background-color: var(--light); 
+            border-radius: 12px; 
+            margin: 30px 0; 
+            grid-column: 1 / -1;
+        }
+        
+        .no-products { 
+            padding: 60px; 
+            text-align: center; 
+            color: #6c757d; 
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 12px;
+            border: 2px dashed #dee2e6;
+        }
+        
+        .hero { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 3rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            margin-top: 1rem;
+        }
+        
+        .hero h1 { 
+            color: white; 
+            font-weight: 700; 
+            margin-bottom: 1rem; 
+            font-size: 2.5rem;
+        }
+        
+        .hero p { 
+            color: rgba(255, 255, 255, 0.9); 
+            font-size: 1.1rem; 
+            margin-bottom: 1.5rem; 
+            max-width: 600px;
+        }
+        
+        .categories {
+            display: flex;
+            gap: 0.75rem;
+            overflow-x: auto;
+            padding: 1rem 0;
+            margin-bottom: 1.5rem;
+            scrollbar-width: thin;
+        }
+        
+        .categories::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .categories::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .categories::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+        
+        .category {
+            padding: 0.5rem 1.5rem;
+            background: white;
+            border-radius: 25px;
+            border: 2px solid #dee2e6;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .category:hover, .category.active {
+            background-color: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        
+        .role-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .seller-badge { background-color: var(--warning); color: #212529; }
+        .buyer-badge { background-color: var(--success); color: white; }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #667eea);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .seller-actions {
+            background: #fff8e1;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            border-left: 4px solid var(--warning);
+        }
+        
+        .footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 3rem 0 1.5rem;
+            margin-top: 4rem;
+        }
+        
+        .search-box {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .status-available {
+            color: var(--success);
+            font-weight: 500;
+        }
+        
+        .status-sold {
+            color: var(--danger);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+ <!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <img src="/images/book.webp" width="45" height="45" style="margin-right: 12px; border-radius: 10px;"> 
+            <div>
+                <div>MetaShop</div>
+                <small style="opacity: 0.8; font-size: 0.8rem;">Online Marketplace</small>
+            </div>
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <!-- Search Box -->
+            <div class="mx-3 flex-grow-1 d-none d-lg-block">
+                <div class="search-box">
+                    <div class="input-group">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search products...">
+                        <button class="btn btn-primary" id="searchBtn">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Menu -->
+            <div class="ms-auto d-flex align-items-center gap-3">
+                <% if (typeof user !== 'undefined' && user) { %>
+                    <!-- Logged In User -->
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <%= user.name ? user.name.charAt(0).toUpperCase() : 'U' %>
+                        </div>
+                        <div class="d-none d-md-block">
+                            <div style="color: white; font-weight: 600; font-size: 0.95rem;">
+                                <%= user.name || 'User' %>
+                                <span class="role-badge <%= user.role === 'seller' ? 'seller-badge' : 'buyer-badge' %>">
+                                    <%= user.role || 'user' %>
+                                </span>
+                            </div>
+                            <small style="color: #adb5bd; font-size: 0.75rem;">
+                                <%= user.email || '' %>
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i>
+                            <!-- Cart badge for buyers -->
+                            <% if (user.role === 'buyer' && cartItems && cartItems.length > 0) { %>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                                      style="font-size: 0.6rem; padding: 0.2rem 0.4rem;">
+                                    <%= cartItems.length %>
+                                    <span class="visually-hidden">items in cart</span>
+                                </span>
+                            <% } %>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/profile"><i class="bi bi-person me-2"></i>Profile</a></li>
+                            <% if (user.role === 'seller') { %>
+                                <li><a class="dropdown-item" href="/sales-history"><i class="bi bi-cash-stack me-2"></i>Sales History</a></li>
+                                <li><a class="dropdown-item" href="/seller-orders"><i class="bi bi-box-seam me-2"></i>Manage Orders</a></li>
+                                <li><a class="dropdown-item" href="/dashboard"><i class="bi bi-speedometer2 me-2"></i>Seller Dashboard</a></li>
+                            <% } else if (user.role === 'buyer') { %>
+                                <li>
+                                    <a class="dropdown-item position-relative" href="/cart">
+                                        <i class="bi bi-cart me-2"></i>My Cart
+                                        <% if (cartItems && cartItems.length > 0) { %>
+                                            <span class="position-absolute top-50 end-0 translate-middle-y badge rounded-pill bg-danger me-2" 
+                                                  style="font-size: 0.65rem; padding: 0.2rem 0.4rem;">
+                                                <%= cartItems.length %>
+                                            </span>
+                                        <% } %>
+                                    </a>
+                                </li>
+                                <li><a class="dropdown-item" href="/my-orders"><i class="bi bi-receipt me-2"></i>My Orders</a></li>
+                                
+                            <% } %>
+                            <% if (canSwitchRole) { %>
+                                <li>
+                                    <form method="POST" action="/switch-role" class="px-3 py-1">
+                                        <input type="hidden" name="role" value="<%= switchRoleTarget %>" />
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-arrow-left-right me-2"></i>
+                                            Switch to <%= switchRoleTarget.charAt(0).toUpperCase() + switchRoleTarget.slice(1) %>
+                                        </button>
+                                    </form>
+                                </li>
+                            <% } %>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><button class="dropdown-item" id="connectMetaMaskBtn"><i class="bi bi-wallet2 me-2"></i>Connect MetaMask</button></li>
+                            <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                <% } else { %>
+                    <!-- Not Logged In -->
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-outline-light" href="/login">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </a>
+                        <a class="btn btn-primary" href="/register">
+                            <i class="bi bi-person-plus"></i> Register
+                        </a>
+                        <button class="btn btn-light" id="connectMetaMaskBtn">
+                            <i class="bi bi-wallet2"></i> Connect
+                        </button>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</nav>
+
+    <!-- Main Content -->
+    <div class="container mt-3">
+        <!-- Hero Section -->
+        <div class="hero">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1>Discover Amazing Products</h1>
+                    <p>Blockchain-verified products with complete history, transaction records, and secure transactions.</p>
+                    <div class="d-flex gap-2 mt-3">
+                        <% if (typeof user !== 'undefined' && user && user.role === 'seller') { %>
+                            <a class="btn btn-light btn-lg" href="/addProduct">
+                                <i class="bi bi-plus-circle"></i> List a Product
+                            </a>
+                        <% } else { %>
+                            <a class="btn btn-outline-light btn-lg" href="/register-seller">
+                                Want to become a seller ?
+                            </a>
+                        <% } %>
+                    </div>
+                </div>
+                <div class="col-lg-4 d-none d-lg-block text-center">
+                    <img src="/images/book.webp" alt="Product" style="max-width: 200px; opacity: 0.9;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="categories">
+            <div class="category active" onclick="filterByCategory('All')">All Products</div>
+            <div class="category" onclick="filterByCategory('fashion')">Fashion</div>
+            <div class="category" onclick="filterByCategory('electronics')">Electronics</div>
+            <div class="category" onclick="filterByCategory('lifestyle')">Lifestyle</div>
+            <div class="category" onclick="filterByCategory('home')">Home</div>
+            <div class="category" onclick="filterByCategory('media')">Media</div>
+            <div class="category" onclick="filterByCategory('secondhand')">Second Hand</div>
+            <div class="category" onclick="filterByCategory('health')">Health</div>
+        </div>
+
+        <!-- Stats and Actions -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+            <div class="stats-container">
+                <div class="d-flex flex-wrap gap-3 align-items-center">
+                    <div>
+                        <strong>Total Products:</strong> 
+                        <span class="badge bg-primary ms-2"><%= cnt || 0 %></span>
+                    </div>
+                    <div>
+                        <strong>Wallet:</strong> 
+                        <span class="account-badge ms-2">
+                            <% if (acct) { %>
+                                <%= acct.substring(0, 6) %>...<%= acct.substring(acct.length - 4) %>
+                            <% } else { %>
+                                Not Connected
+                            <% } %>
+                        </span>
+                    </div>
+                    <% if (typeof user !== 'undefined' && user) { %>
+                    <div>
+                        <strong>Role:</strong> 
+                        <span class="badge <%= user.role === 'seller' ? 'bg-warning' : 'bg-success' %> ms-2">
+                            <%= user.role === 'seller' ? 'Seller' : 'Buyer' %>
+                        </span>
+                    </div>
+                    <% } %>
+                    <div>
+                        <strong>Loyalty:</strong>
+                        <span id="loyalty-balance" class="badge bg-secondary text-light ms-2">
+                            <% if (user && user.metamaskAddress) { %>
+                                Loading...
+                            <% } else { %>
+                                Connect wallet
+                            <% } %>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <% if (typeof user !== 'undefined' && user && user.role === 'seller') { %>
+                <div>
+                    <a class="btn btn-primary" href="/addProduct">
+                        <i class="bi bi-plus-circle"></i> Add New Product
+                    </a>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="grid-container" id="productsGrid">
+            <% if (loading) { %>
+                <!-- Loading State -->
+                <div class="loading-indicator">
+                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h4 class="mt-3">Loading Products...</h4>
+                    <p class="text-muted">Fetching data from blockchain</p>
+                </div>
+            <% } else if (products && products.length > 0) { %>
+                <!-- Products List -->
+                <% products.forEach(function(p, index) { %>
+                    <div class="product-card" data-category="<%= (p.productInfo.category || '').toLowerCase() %>" data-name="<%= (p.productInfo.name || '').toLowerCase() %>">
+                        <!-- Product Image -->
+                            <img src="/images/<%= (p.productInfo.img && p.productInfo.img.length) ? p.productInfo.img : 'book.webp' %>" 
+                                alt="<%= p.productInfo.name %>" 
+                                onerror="this.src='/images/book.webp'">
+                        
+                        <!-- Product Body -->
+                        <div class="product-card-body">
+                            <!-- Product Title and Status -->
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="product-title" title="<%= p.productInfo.name %>">
+                                    <%= p.productInfo.name || 'Unnamed Product' %>
+                                </div>
+                                <div>
+                                    <% if (p.productInfo.status == 1 || p.productInfo.status == '1') { %>
+                                        <span class="status-available">Available</span>
+                                    <% } else { %>
+                                        <span class="status-sold">Sold</span>
+                                    <% } %>
+                                </div>
+                            </div>
+                            
+                            <!-- Category and Description -->
+                            <div class="product-category mb-2">
+                                <i class="bi bi-tag"></i> <%= p.productInfo.category || 'Product' %>
+                            </div>
+                            
+                            <% if (p.productInfo.description && p.productInfo.description.length > 0) { %>
+                                <p class="small text-muted mb-3" style="flex-grow: 1;">
+                                    <%= p.productInfo.description.length > 80 ? p.productInfo.description.substring(0, 80) + '...' : p.productInfo.description %>
+                                </p>
+                            <% } %>
+                            
+                            <!-- Price -->
+                            <div class="product-price mb-3">
+                                <i class="bi bi-currency-ethereum"></i> 
+                                <%= parseFloat(p.productInfo.price || 0).toFixed(3) %> ETH
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="product-meta">
+                                <!-- View Button -->
+                                <a class="btn btn-outline-primary" href="/product/<%= p.id %>">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+
+                                <!-- Edit/Delete Buttons (Seller Only) -->
+                                <% if (p.canEdit) { %>
+                                    <a class="btn btn-warning" href="/editProduct/<%= p.id %>">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    <form method="POST" action="/deleteProduct/<%= p.id %>" onsubmit="return confirm('Delete this product?');">
+                                        <button type="submit" class="btn btn-danger">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                <% } %>
+                                
+                                <!-- Buy/Add to Cart Button -->
+                                <% if (typeof user !== 'undefined' && user && user.role === 'buyer') { %>
+                                    <a class="btn btn-success" href="/product/<%= p.id %>">
+                                        <i class="bi bi-cart-plus"></i> Buy
+                                    </a>
+                                <% } else if (typeof user === 'undefined' || !user) { %>
+                                    <a class="btn btn-success" href="/login">
+                                        <i class="bi bi-cart-plus"></i> Buy
+                                    </a>
+                                <% } %>
+                                
+                            </div>
+                            
+                            <!-- Seller Tools - REMOVED Health, History, Owner buttons -->
+                            <% if (p.canEdit) { %>
+                                <div class="seller-actions">
+                                    <small class="d-block text-warning mb-2">
+                                        <i class="bi bi-shield-check"></i> You own this listing
+                                    </small>
+                                    <!-- REMOVED: The Health, History, Owner buttons group -->
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else if (!loading) { %>
+                <!-- No Products State -->
+                <div class="no-products">
+                    <div class="mb-3">
+                        <i class="bi bi-inbox" style="font-size: 3rem; color: #6c757d;"></i>
+                    </div>
+                    <h4>No Products Available</h4>
+                    <p class="text-muted">Be the first to list a product in our marketplace!</p>
+                    <div class="mt-3">
+                        <% if (typeof user !== 'undefined' && user && user.role === 'seller') { %>
+                            <a href="/addProduct" class="btn btn-primary btn-lg">
+                                <i class="bi bi-plus-circle"></i> Add Your First Product
+                            </a>
+                        <% } else if (typeof user === 'undefined' || !user) { %>
+                            <a href="/register" class="btn btn-primary btn-lg">
+                                <i class="bi bi-person-plus"></i> Register as Seller
+                            </a>
+                        <% } %>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5 class="mb-3">
+                        <img src="/images/book.webp" width="40" height="40" style="margin-right: 10px; border-radius: 8px;">
+                        MetaShop
+                    </h5>
+                    <p class="text-light" style="opacity: 0.8;">
+                        Secure blockchain marketplace with verified records and transparent transactions.
+                    </p>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4">
+                    <h6 class="mb-3">Buy</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-light" style="opacity: 0.8; text-decoration: none;">All Products</a></li>
+                        <li><a href="/" class="text-light" style="opacity: 0.8; text-decoration: none;">Featured</a></li>
+                        <li><a href="/" class="text-light" style="opacity: 0.8; text-decoration: none;">On Sale</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4">
+                    <h6 class="mb-3">Sell</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="/addProduct" class="text-light" style="opacity: 0.8; text-decoration: none;">List a Product</a></li>
+                        <li><a href="/dashboard" class="text-light" style="opacity: 0.8; text-decoration: none;">Seller Dashboard</a></li>
+                        <li><a href="/profile" class="text-light" style="opacity: 0.8; text-decoration: none;">My Profile</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-4 mb-4">
+                    <h6 class="mb-3">Connect Wallet</h6>
+                    <button class="btn btn-outline-light mb-3" id="connectMetaMaskBtnFooter">
+                        <i class="bi bi-wallet2"></i> Connect MetaMask
+                    </button>
+                    <p class="small text-light" style="opacity: 0.7;">
+                        <i class="bi bi-info-circle"></i> Connect your wallet to buy, sell, and manage products.
+                    </p>
+                </div>
+            </div>
+            <hr class="bg-light" style="opacity: 0.2;">
+            <div class="text-center pt-3">
+                <small class="text-light" style="opacity: 0.7;">
+                    &copy; 2024 MetaShop Marketplace. All rights reserved.
+                </small>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Category filtering function
+        function filterByCategory(categoryName) {
+            const cards = document.querySelectorAll('.product-card');
+            const activeCategory = categoryName.toLowerCase();
+            
+            // Update active category button
+            document.querySelectorAll('.category').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.trim().toLowerCase().includes(activeCategory) || 
+                    (activeCategory === 'all' && btn.textContent.trim().toLowerCase().includes('all'))) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Filter products
+            let visibleCount = 0;
+            cards.forEach(card => {
+                const cardCategory = (card.getAttribute('data-category') || '').trim().toLowerCase();
+                
+                if (activeCategory === 'all' || cardCategory.includes(activeCategory)) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Show/hide no results message
+            const productsGrid = document.getElementById('productsGrid');
+            let noResultsMsg = productsGrid.querySelector('.no-results-message');
+            
+            if (visibleCount === 0 && !noResultsMsg) {
+                noResultsMsg = document.createElement('div');
+                noResultsMsg.className = 'no-products no-results-message';
+                noResultsMsg.innerHTML = `
+                    <h4>No products in "${categoryName}" category</h4>
+                    <p class="text-muted">Try another category or check back later.</p>
+                `;
+                productsGrid.appendChild(noResultsMsg);
+            } else if (visibleCount > 0 && noResultsMsg) {
+                noResultsMsg.remove();
+            }
+        }
+
+        // Search functionality
+        function performSearch() {
+            const searchInput = document.getElementById('searchInput');
+            if (!searchInput) return;
+            
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.product-card');
+            let foundCount = 0;
+            
+            cards.forEach(card => {
+                const title = card.querySelector('.product-title').textContent.toLowerCase();
+                const category = card.querySelector('.product-category').textContent.toLowerCase();
+                const dataName = card.getAttribute('data-name') || '';
+                
+                if (searchTerm === '' || 
+                    title.includes(searchTerm) || 
+                    category.includes(searchTerm) ||
+                    dataName.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    foundCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Show search results message
+            const productsGrid = document.getElementById('productsGrid');
+            let searchResultsMsg = productsGrid.querySelector('.search-results-message');
+            
+            if (searchTerm && foundCount === 0) {
+                if (!searchResultsMsg) {
+                    searchResultsMsg = document.createElement('div');
+                    searchResultsMsg.className = 'no-products search-results-message';
+                    productsGrid.appendChild(searchResultsMsg);
+                }
+                searchResultsMsg.innerHTML = `
+                    <h4>No results for "${searchTerm}"</h4>
+                    <p class="text-muted">Try different keywords or browse categories.</p>
+                `;
+            } else if (searchResultsMsg) {
+                searchResultsMsg.remove();
+            }
+        }
+
+        async function syncWallet(acct) {
+            try {
+                await fetch('/update-wallet', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ account: acct || '' })
+                });
+            } catch (error) {
+                console.warn('Wallet sync failed:', error);
+            }
+        }
+
+        async function refreshLoyaltyBalance() {
+            const badge = document.getElementById('loyalty-balance');
+            if (!badge) return;
+            badge.textContent = 'Loading...';
+            try {
+                const response = await fetch('/loyalty-balance');
+                if (!response.ok) throw new Error('Network response not ok');
+                const payload = await response.json();
+                if (payload.success) {
+                    badge.textContent = `${payload.balance} MST`;
+                    badge.classList.remove('bg-secondary', 'bg-danger');
+                    badge.classList.add('bg-info', 'text-dark');
+                } else {
+                    badge.textContent = payload.message || 'Connect wallet';
+                    badge.classList.add('bg-secondary');
+                }
+            } catch (error) {
+                console.error('Loyalty balance fetch error:', error);
+                badge.textContent = 'Error';
+                badge.classList.remove('bg-info');
+                badge.classList.add('bg-danger');
+            }
+        }
+
+        // MetaMask Connection Function
+        async function handleConnect() {
+            if (!window.ethereum) { 
+                alert('Please install MetaMask to connect your wallet.'); 
+                return; 
+            }
+            
+            try {
+                // Disable buttons and show loading
+                const buttons = document.querySelectorAll('#connectMetaMaskBtn, #connectMetaMaskBtnFooter');
+                buttons.forEach(btn => {
+                    if (btn) {
+                        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Connecting...';
+                        btn.disabled = true;
+                    }
+                });
+                
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+                const acct = accounts[0];
+                await syncWallet(acct);
+                
+                // Show success message
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show position-fixed top-0 end-0 m-3';
+                alertDiv.style.zIndex = '9999';
+                alertDiv.innerHTML = `
+                    <i class="bi bi-check-circle me-2"></i>
+                    <strong>Connected!</strong> Wallet: ${acct.substring(0, 6)}...${acct.substring(acct.length - 4)}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(alertDiv);
+                
+                // Auto-remove alert
+                setTimeout(() => alertDiv.remove(), 5000);
+                
+                // Reload page to update connection status
+                setTimeout(() => location.reload(), 500);
+                
+            } catch (error) {
+                console.error('Connection error:', error);
+                alert('Failed to connect: ' + (error.message || 'Unknown error'));
+                
+                // Reset buttons
+                const buttons = document.querySelectorAll('#connectMetaMaskBtn, #connectMetaMaskBtnFooter');
+                buttons.forEach(btn => {
+                    if (btn) {
+                        btn.innerHTML = '<i class="bi bi-wallet2 me-2"></i>Connect Wallet';
+                        btn.disabled = false;
+                    }
+                });
+            }
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Connect MetaMask buttons
+            document.querySelectorAll('#connectMetaMaskBtn, #connectMetaMaskBtnFooter').forEach(btn => {
+                if (btn) btn.addEventListener('click', handleConnect);
+            });
+            
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            
+            if (searchBtn) searchBtn.addEventListener('click', performSearch);
+            if (searchInput) {
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') performSearch();
+                });
+            }
+            
+            // Initialize category filtering
+            filterByCategory('All');
+            refreshLoyaltyBalance();
+            
+            // MetaMask event listeners
+            if (window.ethereum) {
+                window.ethereum.on('accountsChanged', (accounts) => {
+                    if (accounts.length === 0) {
+                        console.log('MetaMask disconnected');
+                        syncWallet('');
+                        location.reload();
+                    } else {
+                        console.log('Account changed');
+                        syncWallet(accounts[0]);
+                        location.reload();
+                    }
+                });
+                
+                window.ethereum.on('chainChanged', () => {
+                    location.reload();
+                });
+            }
+            
+            // Tooltip initialization
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+</body>
+</html>

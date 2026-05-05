@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/styles.css">
+    <title>My Orders - MetaShop</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .container-main {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 15px;
+        }
+        
+        .page-header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .page-title {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 2rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .order-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        
+        .order-id {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+        
+        .order-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .order-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .detail-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 3px solid var(--info-color);
+        }
+        
+        .detail-label {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        
+        .detail-value {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        .status-paid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-waiting {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-shipping {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+        
+        .status-delivering {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-delivered {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+        
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-accepted {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-declined {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .delivery-timeline {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .timeline-step {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .timeline-step i {
+            font-size: 1.2rem;
+        }
+        
+        .step-waiting { color: #ffc107; }
+        .step-shipping { color: #17a2b8; }
+        .step-delivering { color: #007bff; }
+        .step-delivered { color: #28a745; }
+        .step-completed { color: #6c757d; }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn-confirm {
+            background-color: var(--success-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-confirm:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn-confirm:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .transfer-log {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background-color: #d1f2eb;
+            border: 1px solid #1abc9c;
+            color: #0e6251;
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            word-break: break-all;
+        }
+
+        .transfer-log.visible {
+            display: flex;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        
+        .empty-text {
+            color: #999;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        .footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 3rem 0 1.5rem;
+            margin-top: 4rem;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--secondary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/images/book.webp" width="45" height="45" style="margin-right: 12px; border-radius: 10px;"> 
+                <div>
+                    <div>MetaShop</div>
+                    <small style="opacity: 0.8; font-size: 0.8rem;">Online Marketplace</small>
+                </div>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <!-- Search Box -->
+                <div class="mx-3 flex-grow-1 d-none d-lg-block">
+                    <div class="search-box">
+                        <div class="input-group">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Search products...">
+                            <button class="btn btn-primary" id="searchBtn">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User Menu -->
+                <div class="ms-auto d-flex align-items-center gap-3">
+                    <% if (typeof user !== 'undefined' && user) { %>
+                        <!-- Logged In User -->
+                        <div class="user-info">
+                            <div class="user-avatar">
+                                <%= user.name ? user.name.charAt(0).toUpperCase() : 'U' %>
+                            </div>
+                            <div class="d-none d-md-block">
+                                <div style="color: white; font-weight: 600; font-size: 0.95rem;">
+                                    <%= user.name || 'User' %>
+                                    <span class="role-badge <%= user.role === 'seller' ? 'seller-badge' : 'buyer-badge' %>">
+                                        <%= user.role || 'user' %>
+                                    </span>
+                                </div>
+                                <small style="color: #adb5bd; font-size: 0.75rem;">
+                                    <%= user.email || '' %>
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="dropdown">
+                            <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i>
+                                <!-- Cart badge for buyers -->
+                                <% if (user.role === 'buyer' && cartItems && cartItems.length > 0) { %>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                                          style="font-size: 0.6rem; padding: 0.2rem 0.4rem;">
+                                        <%= cartItems.length %>
+                                        <span class="visually-hidden">items in cart</span>
+                                    </span>
+                                <% } %>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="/profile"><i class="bi bi-person me-2"></i>Profile</a></li>
+                                <% if (user.role === 'seller') { %>
+                                    <li><a class="dropdown-item" href="/sales-history"><i class="bi bi-cash-stack me-2"></i>Sales History</a></li>
+                                    <li><a class="dropdown-item" href="/seller-orders"><i class="bi bi-box-seam me-2"></i>Manage Orders</a></li>
+                                    <li><a class="dropdown-item" href="/dashboard"><i class="bi bi-speedometer2 me-2"></i>Seller Dashboard</a></li>
+                                <% } else if (user.role === 'buyer') { %>
+                                    <li>
+                                        <a class="dropdown-item position-relative" href="/cart">
+                                            <i class="bi bi-cart me-2"></i>My Cart
+                                            <% if (cartItems && cartItems.length > 0) { %>
+                                                <span class="position-absolute top-50 end-0 translate-middle-y badge rounded-pill bg-danger me-2" 
+                                                      style="font-size: 0.65rem; padding: 0.2rem 0.4rem;">
+                                                    <%= cartItems.length %>
+                                                </span>
+                                            <% } %>
+                                        </a>
+                                    </li>
+                                    <li><a class="dropdown-item" href="/my-orders"><i class="bi bi-receipt me-2"></i>My Orders</a></li>
+                                    
+                                <% } %>
+                                <% if (canSwitchRole) { %>
+                                    <li>
+                                        <form method="POST" action="/switch-role" class="px-3 py-1">
+                                            <input type="hidden" name="role" value="<%= switchRoleTarget %>" />
+                                            <button type="submit" class="dropdown-item">
+                                                <i class="bi bi-arrow-left-right me-2"></i>
+                                                Switch to <%= switchRoleTarget.charAt(0).toUpperCase() + switchRoleTarget.slice(1) %>
+                                            </button>
+                                        </form>
+                                    </li>
+                                <% } %>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><button class="dropdown-item" id="connectMetaMaskBtn"><i class="bi bi-wallet2 me-2"></i>Connect MetaMask</button></li>
+                                <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                            </ul>
+                        </div>
+                    <% } else { %>
+                        <!-- Not Logged In -->
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-outline-light" href="/login">
+                                <i class="bi bi-box-arrow-in-right"></i> Login
+                            </a>
+                            <a class="btn btn-primary" href="/register">
+                                <i class="bi bi-person-plus"></i> Register
+                            </a>
+                            <button class="btn btn-light" id="connectMetaMaskBtn">
+                                <i class="bi bi-wallet2"></i> Connect
+                            </button>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-main">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="bi bi-receipt"></i> My Orders
+            </h1>
+            <p class="text-muted mb-0">View and track your purchases</p>
+        </div>
+
+        <% if (orders && orders.length > 0) { %>
+            <% orders.forEach(order => { %>
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-id">#<%= order.id %></div>
+                            <div class="order-date">
+                                <i class="bi bi-calendar"></i> 
+                                <%= new Date(order.createdAt).toLocaleDateString() %>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="status-badge status-<%= order.orderStatus.toLowerCase().replace(' ', '-') %>">
+                                <%= order.orderStatus %>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="order-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Product</div>
+                            <div class="detail-value"><%= order.productName %></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Seller</div>
+                            <div class="detail-value"><%= order.sellerName %></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Price (ETH)</div>
+                            <div class="detail-value"><%= parseFloat(order.price).toFixed(3) %></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Quantity</div>
+                            <div class="detail-value"><%= order.quantity %></div>
+                        </div>
+                    </div>
+
+                    <% if (order.orderStatus === 'Declined') { %>
+                        <div style="margin-top: 15px; padding: 12px; background: #f8d7da; border-radius: 6px; color: #721c24; font-weight: 600;">
+                            <i class="bi bi-x-circle"></i> <%= order.refundMessage || 'The seller did not accept your order' %>
+                        </div>
+                    <% } else { %>
+                        <div style="margin-top: 10px; color: #666; font-size: 0.95rem;">
+                            <strong>Payment status:</strong>
+                            <span class="payment-status-value" data-payment-status data-order-id="<%= order.id %>">
+                                <%= order.escrowStatus || 'Held' %>
+                            </span>
+                            <br>
+                            <small class="text-muted">
+                                Seller wallet: <%= order.sellerAddress || 'Not available' %>
+                            </small>
+                        </div>
+
+                        <% if (order.orderStatus === 'Paid') { %>
+                            <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 6px; color: #856404; font-weight: 600;">
+                                <i class="bi bi-hourglass-split"></i> Waiting for seller to accept your order
+                            </div>
+                        <% } %>
+
+                        <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                            <div style="font-weight: 600; color: var(--primary-color); margin-bottom: 10px;">
+                                <i class="bi bi-truck"></i> Delivery Status
+                            </div>
+                            
+                            <div class="delivery-timeline">
+                                <div class="timeline-step <%= ['Waiting to be shipped', 'Shipping', 'Delivering', 'Delivered'].includes(order.deliveryStatus) ? 'step-waiting' : '' %>">
+                                    <i class="bi bi-package"></i> Waiting
+                                </div>
+                                <span>→</span>
+                                <div class="timeline-step <%= ['Shipping', 'Delivering', 'Delivered'].includes(order.deliveryStatus) ? 'step-shipping' : '' %>">
+                                    <i class="bi bi-arrow-right-square"></i> Shipping
+                                </div>
+                                <span>→</span>
+                                <div class="timeline-step <%= ['Delivering', 'Delivered'].includes(order.deliveryStatus) ? 'step-delivering' : '' %>">
+                                    <i class="bi bi-geo-alt"></i> Delivering
+                                </div>
+                                <span>→</span>
+                                <div class="timeline-step <%= order.deliveryStatus === 'Delivered' ? 'step-delivered' : '' %>">
+                                    <i class="bi bi-check-circle"></i> Delivered
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                                <div style="font-weight: 600; color: var(--primary-color);">
+                                    Current: 
+                                    <span class="status-badge status-<%= order.deliveryStatus.toLowerCase().replace(/\s+/g, '-') %>">
+                                        <%= order.deliveryStatus %>
+                                    </span>
+                                </div>
+                                <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                                    Updated: <%= new Date(order.statusUpdatedAt).toLocaleString() %>
+                                </div>
+                            </div>
+
+                            <% if (order.deliveryStatus === 'Delivered' && order.orderStatus === 'Accepted') { %>
+                                <div class="action-buttons">
+                                    <button class="btn-confirm" data-order-id="<%= order.id %>" data-seller-address="<%= order.sellerAddress || '' %>" onclick="confirmOrderReceived(event, '<%= order.id %>', '<%= order.escrowAddress || '' %>')">
+                                        <i class="bi bi-check-circle me-2"></i> Delivery received
+                                    </button>
+                                </div>
+                                <div class="transfer-log" data-transfer-log data-order-id="<%= order.id %>"></div>
+                            <% } else if (order.orderStatus === 'Completed') { %>
+                                <div style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 6px; color: #155724; font-weight: 600;">
+                                    <i class="bi bi-check-circle"></i> Order Completed & Received
+                                </div>
+                            <% } %>
+                        </div>
+                    <% } %>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-bag"></i>
+                </div>
+                <div class="empty-text">No orders yet</div>
+                <p class="text-muted">Start shopping to make your first purchase</p>
+                <a href="/" class="btn btn-primary">
+                    <i class="bi bi-shop"></i> Continue Shopping
+                </a>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            <p class="mb-2">Secure blockchain marketplace with verified records and transparent transactions.</p>
+            <small>&copy; 2024 MetaShop Marketplace. All rights reserved.</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
+    <script>
+        let escrowAbi;
+        const deliveryButtonContent = '<i class="bi bi-check-circle me-2"></i> Delivery received';
+        const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+        async function initEscrowWeb3() {
+            if (!window.ethereum) {
+                throw new Error('MetaMask not detected');
+            }
+            const web3 = new Web3(window.ethereum);
+            if (!escrowAbi) {
+                const response = await fetch('/get-escrow-abi');
+                const data = await response.json();
+                if (!data || !data.abi) {
+                    throw new Error('Escrow ABI not available');
+                }
+                escrowAbi = data.abi;
+            }
+            return web3;
+        }
+
+        async function ensureExpectedChain(web3) {
+            // Prefer server-provided chainId; if missing, fetch it.
+            let expectedChainId = <%- JSON.stringify(String(chainId || '')) %>;
+            if (!expectedChainId) {
+                try {
+                    const resp = await fetch('/chain-id');
+                    const payload = await resp.json();
+                    expectedChainId = payload?.chainId ? String(payload.chainId) : '';
+                } catch (e) {
+                    // ignore: we'll just skip the check if backend is unreachable
+                }
+            }
+
+            if (!expectedChainId) return true;
+
+            const walletChainId = await web3.eth.getChainId();
+            if (String(walletChainId) !== String(expectedChainId)) {
+                alert(`Wrong network detected. MetaMask chainId is ${walletChainId}, but the app expects ${expectedChainId}.\n\nPlease switch MetaMask to the Ganache network running on port 7545.`);
+                return false;
+            }
+            return true;
+        }
+
+        function shouldFetchEscrow(address) {
+            return !address || address === ZERO_ADDRESS;
+        }
+
+        async function fetchEscrowAddressFromServer(orderId) {
+            if (!orderId) return '';
+            try {
+                const response = await fetch(`/order-escrow/${orderId}`);
+                if (!response.ok) return '';
+                const payload = await response.json();
+                if (payload && payload.success && payload.escrowAddress) {
+                    return payload.escrowAddress;
+                }
+            } catch (error) {
+                console.error('Failed to load escrow address for order', orderId, error);
+            }
+            return '';
+        }
+
+        async function resolveEscrowAddress(orderId, currentAddress) {
+            if (!shouldFetchEscrow(currentAddress)) {
+                return currentAddress;
+            }
+            return await fetchEscrowAddressFromServer(orderId);
+        }
+
+        function resetDeliveryButton(button) {
+            if (!button) return;
+            button.disabled = false;
+            button.innerHTML = deliveryButtonContent;
+        }
+
+        function displayTransferDetails(orderId, fromAddress, toAddress, receipt) {
+            const logEl = document.querySelector(`[data-transfer-log][data-order-id="${orderId}"]`);
+            if (!logEl) return;
+            const blockInfo = receipt?.blockNumber ? `Ganache block ${receipt.blockNumber}` : 'Recent block';
+            const txInfo = receipt?.transactionHash ? `<br>Tx: ${receipt.transactionHash}` : '';
+            logEl.innerHTML = `<span><strong>${blockInfo}</strong></span><span>From: ${fromAddress}</span><span>To: ${toAddress}${txInfo}</span>`;
+            logEl.classList.add('visible');
+        }
+
+        function updatePaymentStatus(orderId, statusText) {
+            const statusEl = document.querySelector(`[data-payment-status][data-order-id="${orderId}"]`);
+            if (statusEl) {
+                statusEl.textContent = statusText;
+            }
+        }
+
+        function normalizeAddress(address) {
+            return (address || '').toLowerCase().trim();
+        }
+
+        function escrowStatusLabel(statusNum) {
+            const s = Number(statusNum);
+            // Must match contracts/SimpleEscrow.sol
+            if (s === 0) return 'Unfunded';
+            if (s === 1) return 'Funded';
+            if (s === 2) return 'Accepted';
+            if (s === 3) return 'Released';
+            if (s === 4) return 'Refunded';
+            if (s === 5) return 'Declined';
+            return `Unknown (${statusNum})`;
+        }
+
+        async function confirmOrderReceived(evt, orderId, escrowAddress) {
+            if (!confirm('Are you sure you have received this product?')) {
+                return;
+            }
+
+            const button = evt?.currentTarget || evt?.target || document.querySelector(`.btn-confirm[data-order-id="${orderId}"]`);
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<span class="loading-spinner"></span> Confirming...';
+            }
+
+            try {
+                const resolvedEscrow = await resolveEscrowAddress(orderId, escrowAddress);
+                if (shouldFetchEscrow(resolvedEscrow)) {
+                    alert('Escrow contract not found for this order.');
+                    resetDeliveryButton(button);
+                    return;
+                }
+
+                const web3 = await initEscrowWeb3();
+                const okChain = await ensureExpectedChain(web3);
+                if (!okChain) {
+                    resetDeliveryButton(button);
+                    return;
+                }
+                const accounts = await web3.eth.getAccounts();
+                if (!accounts || accounts.length === 0) {
+                    alert('Please connect your wallet in MetaMask.');
+                    resetDeliveryButton(button);
+                    return;
+                }
+
+                const escrow = new web3.eth.Contract(escrowAbi, resolvedEscrow);
+                const connected = accounts[0];
+
+                const [status, escrowBuyer, escrowAmount, escrowSeller] = await Promise.all([
+                    escrow.methods.status().call(),
+                    escrow.methods.buyer().call(),
+                    escrow.methods.amount().call(),
+                    escrow.methods.seller().call()
+                ]);
+
+                if (escrowBuyer && escrowBuyer !== ZERO_ADDRESS && escrowBuyer.toLowerCase() !== connected.toLowerCase()) {
+                    alert(`Please switch MetaMask to the buyer wallet used at checkout.\n\nExpected: ${escrowBuyer}\nConnected: ${connected}`);
+                    resetDeliveryButton(button);
+                    return;
+                }
+
+                const expectedSellerAddress = button?.dataset?.sellerAddress || '';
+                const normalizedExpectedSeller = normalizeAddress(expectedSellerAddress);
+                const normalizedEscrowSeller = normalizeAddress(escrowSeller);
+                if (normalizedExpectedSeller && normalizedEscrowSeller && normalizedExpectedSeller !== normalizedEscrowSeller) {
+                    alert(`Escrow seller mismatch. Expected ${expectedSellerAddress || 'the original seller'} but escrow is configured for ${escrowSeller}. Please verify before releasing funds.`);
+                    resetDeliveryButton(button);
+                    return;
+                }
+
+                // Must be funded before it can be released.
+                if (normalizeAddress(escrowBuyer) === normalizeAddress(ZERO_ADDRESS) || BigInt(escrowAmount || 0) === BigInt(0)) {
+                    alert(`Escrow is not funded on this network.\n\nEscrow: ${resolvedEscrow}\nStatus: ${escrowStatusLabel(status)}\nBuyer: ${escrowBuyer}\nAmount: ${String(escrowAmount)}\n\nFix: Make sure checkout completes the fund() transaction on Ganache 7545, then try again.\n\nDebug: /debug-escrow/${resolvedEscrow}`);
+                    resetDeliveryButton(button);
+                    return;
+                }
+
+                // 3 = Released, 4 = Refunded, 5 = Declined (see SimpleEscrow.Status)
+                if (Number(status) === 3) {
+                    alert('Escrow already released. Updating order status...');
+                } else if (Number(status) === 4 || Number(status) === 5) {
+                    alert('Escrow already refunded/declined.');
+                    resetDeliveryButton(button);
+                    return;
+                }
+
+                const receipt = await escrow.methods.confirmDelivery().send({ from: accounts[0], gas: 3000000 });
+
+                const response = await fetch(`/confirm-order-received/${orderId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    updatePaymentStatus(orderId, 'Released');
+                    displayTransferDetails(orderId, resolvedEscrow, escrowSeller, receipt);
+                    const blockText = receipt?.blockNumber ? ` (Ganache block ${receipt.blockNumber})` : '';
+                    alert(`Order confirmed as received!${blockText}\nFunds released from ${resolvedEscrow} to ${escrowSeller}.\nTransaction: ${receipt.transactionHash}`);
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to confirm order'));
+                    resetDeliveryButton(button);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error confirming order: ' + (error.message || 'Unknown error'));
+                resetDeliveryButton(button);
+            }
+        }
+
+        // Auto-refresh delivery status every 10 seconds
+        setInterval(() => {
+            location.reload();
+        }, 10000);
+    </script>
+</body>
+</html>

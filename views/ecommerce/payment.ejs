@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/styles.css">
+    <title>Escrow Payment - MetaShop</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            background-color: var(--primary) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 0.75rem 0;
+        }
+
+        .card-shell {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 2.5rem 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0 2rem;
+        }
+
+        .wallet-pill {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border-radius: 999px;
+            padding: 0.35rem 0.85rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/images/book.webp" width="45" height="45" style="margin-right: 12px; border-radius: 10px;">
+                <div>
+                    <div>MetaShop</div>
+                    <small style="opacity: 0.8; font-size: 0.8rem;">Online Marketplace</small>
+                </div>
+            </a>
+            <div class="ms-auto d-flex align-items-center gap-3">
+                <% if (typeof user !== 'undefined' && user) { %>
+                    <div class="text-white">
+                        <strong><%= user.name || 'User' %></strong>
+                        <span class="badge <%= user.role === 'seller' ? 'bg-warning' : 'bg-success' %> ms-2">
+                            <%= user.role || 'user' %>
+                        </span>
+                    </div>
+                <% } %>
+                <button class="btn btn-outline-light" id="connectMetaMaskBtn">
+                    <i class="bi bi-wallet2"></i> Connect
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
+                <div>
+                    <h1 class="mb-2">Escrow Payment</h1>
+                    <p class="mb-0">Funds are locked until the buyer confirms delivery.</p>
+                </div>
+                <div class="wallet-pill" id="walletPill">
+                    Wallet: <%= acct ? acct.substring(0, 6) + '...' + acct.substring(acct.length - 4) : 'Not connected' %>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-lg-6">
+                <div class="card-shell">
+                    <h5 class="mb-3"><i class="bi bi-shield-lock me-2"></i>Escrow Details</h5>
+                    <p class="text-muted mb-2">Contract: <span id="escrowAddress">Loading...</span></p>
+                    <p class="text-muted mb-2">Seller: <span id="sellerAddress">Loading...</span></p>
+                    <p class="text-muted mb-3">Status: <span id="escrowStatus">Not funded</span></p>
+
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="bi bi-currency-ethereum"></i></span>
+                        <input type="number" min="0" step="0.001" class="form-control" id="fundAmount" placeholder="Amount in ETH">
+                        <button class="btn btn-primary" id="fundBtn">Fund Escrow</button>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-success" id="confirmBtn">
+                            <i class="bi bi-check-circle me-1"></i> Confirm Delivery
+                        </button>
+                        <button class="btn btn-outline-danger" id="refundBtn">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Refund Buyer
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card-shell">
+                    <h5 class="mb-3"><i class="bi bi-info-circle me-2"></i>How it works</h5>
+                    <ol class="text-muted">
+                        <li>Buyer connects MetaMask and funds escrow.</li>
+                        <li>Funds stay locked in the contract.</li>
+                        <li>Buyer confirms delivery to release funds to seller.</li>
+                        <li>Buyer can request a refund before confirmation.</li>
+                    </ol>
+                    <div class="alert alert-warning mt-3 mb-0">
+                        This is a simple demo escrow. One escrow contract handles one payment.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-5 py-4" style="background: var(--primary); color: white;">
+        <div class="container text-center">
+            <small style="opacity: 0.7;">&copy; 2024 MetaShop Marketplace. All rights reserved.</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
+    <script>
+        let web3;
+        let escrow;
+        let escrowAddress;
+        let escrowAbi;
+
+        function setWalletUI(account) {
+            const pill = document.getElementById('walletPill');
+            const connectBtn = document.getElementById('connectMetaMaskBtn');
+            if (pill) {
+                if (account) {
+                    pill.textContent = `Wallet: ${account.substring(0, 6)}...${account.substring(account.length - 4)}`;
+                } else {
+                    pill.textContent = 'Wallet: Not connected';
+                }
+            }
+            if (connectBtn) {
+                if (account) {
+                    connectBtn.innerHTML = '<i class="bi bi-wallet2"></i> Connected';
+                    connectBtn.disabled = true;
+                } else {
+                    connectBtn.innerHTML = '<i class="bi bi-wallet2"></i> Connect';
+                    connectBtn.disabled = false;
+                }
+            }
+        }
+
+        async function syncWallet(account) {
+            try {
+                await fetch('/update-wallet', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ account: account || '' })
+                });
+            } catch (error) {
+                console.warn('Wallet sync failed:', error);
+            }
+        }
+
+        async function loadEscrowArtifact() {
+            const res = await fetch('/build/SimpleEscrow.json');
+            if (!res.ok) throw new Error('Missing /public/build/SimpleEscrow.json');
+            const artifact = await res.json();
+            escrowAbi = artifact.abi;
+            const networks = artifact.networks || {};
+            const networkId = Object.keys(networks)[0];
+            if (!networkId) throw new Error('No deployed network in artifact');
+            escrowAddress = networks[networkId].address;
+        }
+
+        async function connectWallet() {
+            if (!window.ethereum) {
+                alert('Please install MetaMask');
+                return;
+            }
+            await window.ethereum.request({ method: 'eth_requestAccounts' });
+            web3 = new Web3(window.ethereum);
+            await initContract();
+            const accounts = await web3.eth.getAccounts();
+            const account = accounts && accounts.length ? accounts[0] : '';
+            setWalletUI(account);
+            await syncWallet(account);
+        }
+
+        async function initContract() {
+            await loadEscrowArtifact();
+            escrow = new web3.eth.Contract(escrowAbi, escrowAddress);
+            document.getElementById('escrowAddress').textContent = escrowAddress;
+
+            try {
+                const seller = await escrow.methods.seller().call();
+                document.getElementById('sellerAddress').textContent = seller;
+            } catch (error) {
+                document.getElementById('sellerAddress').textContent = 'Unavailable';
+            }
+
+            await refreshStatus();
+        }
+
+        async function refreshStatus() {
+            try {
+                const isFunded = await escrow.methods.isFunded().call();
+                const isReleased = await escrow.methods.isReleased().call();
+                const isRefunded = await escrow.methods.isRefunded().call();
+                let status = 'Not funded';
+                if (isFunded) status = 'Funded';
+                if (isReleased) status = 'Released';
+                if (isRefunded) status = 'Refunded';
+                document.getElementById('escrowStatus').textContent = status;
+            } catch (error) {
+                document.getElementById('escrowStatus').textContent = 'Unavailable';
+            }
+        }
+
+        async function fundEscrow() {
+            const amountEth = document.getElementById('fundAmount').value;
+            if (!amountEth || Number(amountEth) <= 0) {
+                alert('Enter an amount in ETH');
+                return;
+            }
+            const accounts = await web3.eth.getAccounts();
+            await escrow.methods.fund().send({
+                from: accounts[0],
+                value: web3.utils.toWei(amountEth, 'ether')
+            });
+            await refreshStatus();
+        }
+
+        async function confirmDelivery() {
+            const accounts = await web3.eth.getAccounts();
+            await escrow.methods.confirmDelivery().send({ from: accounts[0] });
+            await refreshStatus();
+        }
+
+        async function refundBuyer() {
+            const accounts = await web3.eth.getAccounts();
+            await escrow.methods.refundBuyer().send({ from: accounts[0] });
+            await refreshStatus();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('connectMetaMaskBtn').addEventListener('click', connectWallet);
+            document.getElementById('fundBtn').addEventListener('click', fundEscrow);
+            document.getElementById('confirmBtn').addEventListener('click', confirmDelivery);
+            document.getElementById('refundBtn').addEventListener('click', refundBuyer);
+
+            if (window.ethereum) {
+                window.ethereum.request({ method: 'eth_accounts' })
+                    .then(async (accounts) => {
+                        if (accounts && accounts.length) {
+                            web3 = new Web3(window.ethereum);
+                            await initContract();
+                            setWalletUI(accounts[0]);
+                            await syncWallet(accounts[0]);
+                        } else {
+                            setWalletUI('');
+                        }
+                    })
+                    .catch(() => setWalletUI(''));
+
+                window.ethereum.on('accountsChanged', async (accounts) => {
+                    const account = accounts && accounts.length ? accounts[0] : '';
+                    if (account) {
+                        if (!web3) web3 = new Web3(window.ethereum);
+                        await initContract();
+                    }
+                    setWalletUI(account);
+                    await syncWallet(account);
+                });
+
+                window.ethereum.on('chainChanged', () => location.reload());
+            } else {
+                setWalletUI('');
+            }
+        });
+    </script>
+</body>
+</html>

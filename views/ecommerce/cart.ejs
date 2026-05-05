@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/styles.css">
+    <title>Shopping Cart - MetaShop</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .cart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 1200px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        }
+        
+        .cart-item {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .cart-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .cart-item-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        
+        .cart-item-details {
+            flex: 1;
+        }
+        
+        .cart-item-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .cart-item-price {
+            font-size: 1.2rem;
+            color: var(--success-color);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .quantity-btn {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            font-size: 1.2rem;
+        }
+        
+        .quantity-display {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .remove-btn {
+            background-color: var(--danger-color);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        
+        .remove-btn:hover {
+            background-color: #c82333;
+        }
+        
+        .cart-summary {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid #dee2e6;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 1.05rem;
+            padding: 0.5rem 0;
+        }
+        
+        .summary-row.total {
+            border-top: 2px solid #ddd;
+            padding-top: 1rem;
+            font-weight: 600;
+            font-size: 1.3rem;
+            color: var(--success-color);
+        }
+        
+        .checkout-btn {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 1rem;
+        }
+        
+        .checkout-btn:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+        }
+        
+        .empty-cart {
+            text-align: center;
+            padding: 4rem 1rem;
+            color: #666;
+        }
+        
+        .empty-cart-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #adb5bd;
+        }
+        
+        .page-header {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--primary-color);
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+        
+        .back-button:hover {
+            color: var(--secondary-color);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: white;
+        }
+        
+        .item-total {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--success-color);
+        }
+        
+        .stock-warning {
+            color: var(--danger-color);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/images/book.webp" width="40" height="40" style="margin-right: 10px; border-radius: 8px;">
+                MetaShop
+            </a>
+            
+            <div class="ms-auto d-flex align-items-center gap-3">
+                <% if (typeof user !== 'undefined' && user) { %>
+                    <!-- Logged In User -->
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <%= user.name ? user.name.charAt(0).toUpperCase() : 'U' %>
+                        </div>
+                        <div class="d-none d-md-block">
+                            <div style="font-weight: 600; font-size: 0.95rem;">
+                                <%= user.name || 'User' %>
+                                <span class="badge <%= user.role === 'seller' ? 'bg-warning' : 'bg-success' %>">
+                                    <%= user.role %>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/profile"><i class="bi bi-person me-2"></i>Profile</a></li>
+                            <% if (user.role === 'seller') { %>
+                                   <li><a class="dropdown-item" href="/sales-history"><i class="bi bi-cash-stack me-2"></i>Sales History</a></li>
+                                <li><a class="dropdown-item" href="/dashboard"><i class="bi bi-speedometer2 me-2"></i>Seller Dashboard</a></li>
+                            <% } else if (user.role === 'buyer') { %>
+                                <li><a class="dropdown-item" href="/cart"><i class="bi bi-cart me-2"></i>My Cart</a></li>
+                            <% } %>
+                            <% if (canSwitchRole) { %>
+                                <li>
+                                    <form method="POST" action="/switch-role" class="px-3 py-1">
+                                        <input type="hidden" name="role" value="<%= switchRoleTarget %>" />
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-arrow-left-right me-2"></i>
+                                            Switch to <%= switchRoleTarget.charAt(0).toUpperCase() + switchRoleTarget.slice(1) %>
+                                        </button>
+                                    </form>
+                                </li>
+                            <% } %>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><button class="dropdown-item" id="connectMetaMaskBtn"><i class="bi bi-wallet2 me-2"></i>Connect MetaMask</button></li>
+                            <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                <% } else { %>
+                    <!-- Not Logged In -->
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-outline-light" href="/login">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </a>
+                        <a class="btn btn-primary" href="/register">
+                            <i class="bi bi-person-plus"></i> Register
+                        </a>
+                        <button class="btn btn-light" id="connectMetaMaskBtn">
+                            <i class="bi bi-wallet2"></i> Connect
+                        </button>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Back Button -->
+        <a href="/" class="back-button">
+            <i class="bi bi-arrow-left me-2"></i> Continue Shopping
+        </a>
+
+        <!-- Buyer Check -->
+        <% if (typeof user !== 'undefined' && user && user.role === 'buyer') { %>
+            <div class="page-header">
+                <h1>Shopping Cart</h1>
+                <p>Review your selected items before checkout</p>
+            </div>
+
+            <div class="cart-container">
+                <% if (cartItems && cartItems.length > 0) { %>
+                    <h3 style="margin-bottom: 1.5rem; color: var(--primary-color);">
+                        <i class="bi bi-cart3 me-2"></i>Items in Cart (<span id="itemCount"><%= cartItems.length %></span>)
+                    </h3>
+                    
+                    <% cartItems.forEach(function(item, index) { %>
+                        <div class="cart-item" id="cart-item-<%= index %>">
+                               <img src="/images/<%= item.img || 'book.webp' %>" 
+                                 alt="<%= item.name %>" 
+                                 class="cart-item-image"
+                                   onerror="this.src='/images/book.webp'">
+                            
+                            <div class="cart-item-details">
+                                <div class="cart-item-name">
+                                    <%= item.name %>
+                                </div>
+                                
+                                <div class="cart-item-price">
+                                    <i class="bi bi-currency-ethereum"></i> 
+                                    <%= item.price.toFixed(3) %> ETH each
+                                </div>
+                                
+                                <div class="quantity-control">
+                                    <form method="POST" action="/update-cart-quantity/<%= item.id %>" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                                        <button type="submit" name="quantity" value="<%= item.quantity - 1 %>" 
+                                                class="btn btn-outline-secondary quantity-btn" 
+                                                <%= item.quantity <= 1 ? 'disabled' : '' %>>
+                                            −
+                                        </button>
+                                        <span class="quantity-display"><%= item.quantity %></span>
+                                        <button type="submit" name="quantity" value="<%= item.quantity + 1 %>" 
+                                                class="btn btn-outline-secondary quantity-btn"
+                                                <%= item.quantity >= item.stock ? 'disabled' : '' %>>
+                                            +
+                                        </button>
+                                    </form>
+                                    <% if (item.quantity >= item.stock) { %>
+                                        <span class="stock-warning">
+                                            <i class="bi bi-exclamation-triangle"></i> Max quantity reached
+                                        </span>
+                                    <% } %>
+                                </div>
+                                
+                                <div class="item-total">
+                                    Total: <i class="bi bi-currency-ethereum"></i> 
+                                    <%= (item.price * item.quantity).toFixed(3) %> ETH
+                                </div>
+                            </div>
+                            
+                            <!-- Remove button -->
+                            <form method="POST" action="/remove-from-cart/<%= item.id %>" style="display: inline;">
+                                <button type="submit" class="remove-btn">
+                                    <i class="bi bi-trash me-1"></i> Remove
+                                </button>
+                            </form>
+                        </div>
+                    <% }) %>
+                    
+                    <!-- Cart Summary -->
+                    <div class="cart-summary">
+                        <h4 style="margin-bottom: 1.5rem; color: var(--primary-color);">
+                            <i class="bi bi-receipt me-2"></i>Order Summary
+                        </h4>
+                        
+                        <% 
+                            // Calculate totals
+                            let subtotal = 0;
+                            cartItems.forEach(item => {
+                                subtotal += item.price * item.quantity;
+                            });
+                            const tax = subtotal * 0.02;
+                            const total = subtotal + tax;
+                        %>
+                        
+                        <div class="summary-row">
+                            <span>Subtotal (<%= cartItems.length %> items):</span>
+                            <span><i class="bi bi-currency-ethereum"></i> <%= subtotal.toFixed(3) %> ETH</span>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <span>Tax (2%):</span>
+                            <span><i class="bi bi-currency-ethereum"></i> <%= tax.toFixed(3) %> ETH</span>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <span>Shipping:</span>
+                            <span id="shipping">Free</span>
+                        </div>
+
+                        <!-- Loyalty Token Discount Section -->
+                        <div class="summary-row" style="border-top: 1px solid #ddd; padding-top: 1rem; margin-top: 1rem;">
+                            <span><i class="bi bi-gift me-2"></i>Use Loyalty Tokens</span>
+                            <span id="tokenBalance" class="badge bg-info">Loading...</span>
+                        </div>
+                        
+                        <div style="padding: 0.5rem 0; margin-bottom: 1rem;">
+                            <div class="input-group input-group-sm">
+                                <input type="number" id="tokenInput" class="form-control" placeholder="Tokens to use" min="0" step="1" value="0">
+                                <button class="btn btn-outline-info" type="button" id="applyTokenBtn">
+                                    <i class="bi bi-check-circle me-1"></i> Apply
+                                </button>
+                            </div>
+                            <small class="text-muted mt-2 d-block">1 token = 0.01 ETH discount (max 50% off)</small>
+                            <small class="text-muted d-block"><i class="bi bi-info-circle me-1"></i>Discount applies to seller as loyalty incentive</small>
+                            <div id="tokenMessage" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
+                        </div>
+
+                        <div class="summary-row" id="discountRow" style="display: none; color: var(--success-color);">
+                            <span>Token Discount:</span>
+                            <span id="discountAmount">-<i class="bi bi-currency-ethereum"></i> 0.000 ETH</span>
+                        </div>
+
+                        <div class="summary-row total">
+                            <span>Total:</span>
+                            <span id="finalTotal"><i class="bi bi-currency-ethereum"></i> <%= total.toFixed(3) %> ETH</span>
+                        </div>
+                        
+                        <button class="checkout-btn" id="checkoutBtn">
+                            <i class="bi bi-lock me-2"></i> Proceed to Checkout
+                        </button>
+                        
+                        <a class="btn btn-outline-secondary w-100 mt-3" href="/">
+                            <i class="bi bi-arrow-left me-2"></i> Continue Shopping
+                        </a>
+                    </div>
+                    
+                <% } else { %>
+                    <!-- Empty Cart -->
+                    <div class="empty-cart">
+                        <div class="empty-cart-icon">
+                            <i class="bi bi-cart-x" style="font-size: 4rem;"></i>
+                        </div>
+                        <h3>Your cart is empty</h3>
+                        <p class="text-muted">No items added yet. Start shopping!</p>
+                        <a class="btn btn-primary btn-lg mt-3" href="/">
+                            <i class="bi bi-shop me-2"></i> Continue Shopping
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+            
+        <% } else if (typeof user !== 'undefined' && user && user.role === 'seller') { %>
+            <!-- Seller cannot access cart -->
+            <div class="cart-container text-center py-5">
+                <i class="bi bi-cart-x" style="font-size: 4rem; color: #dc3545;"></i>
+                <h3 class="mt-3">Sellers cannot purchase products</h3>
+                <p class="text-muted">Your account is registered as a seller. Only buyers can add items to cart.</p>
+                <div class="mt-4">
+                    <a href="/dashboard" class="btn btn-primary">
+                        <i class="bi bi-speedometer2 me-2"></i> Go to Seller Dashboard
+                    </a>
+                    <a href="/" class="btn btn-outline-secondary ms-2">
+                        <i class="bi bi-arrow-left me-2"></i> Back to Store
+                    </a>
+                </div>
+            </div>
+            
+        <% } else { %>
+            <!-- Not logged in -->
+            <div class="cart-container text-center py-5">
+                <i class="bi bi-person-x" style="font-size: 4rem; color: #6c757d;"></i>
+                <h3 class="mt-3">Please log in as a buyer</h3>
+                <p class="text-muted">You need to be logged in as a buyer to view your shopping cart.</p>
+                <div class="mt-4">
+                    <a href="/login" class="btn btn-primary">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Login
+                    </a>
+                    <a href="/register" class="btn btn-outline-primary ms-2">
+                        <i class="bi bi-person-plus me-2"></i> Register as Buyer
+                    </a>
+                </div>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white mt-5 py-4">
+        <div class="container text-center">
+            <small>&copy; 2024 MetaShop Marketplace. All rights reserved.</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
+    <script>
+        let web3;
+        let contract;
+        let contractAddress;
+        let escrowAbi;
+        let escrowBytecode;
+        
+        // Initialize Web3 and contract
+        async function initWeb3() {
+            if (!window.ethereum) {
+                console.warn('MetaMask not detected');
+                return false;
+            }
+            
+            try {
+                web3 = new Web3(window.ethereum);
+                
+                // Load contract ABI and address
+                const response = await fetch('/get-contract-abi');
+                const data = await response.json();
+
+                if (!data || !data.address || !data.abi) {
+                    throw new Error('Contract data not available. Please re-run migrations.');
+                }
+
+                // Ensure MetaMask is on the same network as the deployed contract
+                const walletNetworkId = await web3.eth.net.getId();
+                if (data.networkId && Number(data.networkId) !== Number(walletNetworkId)) {
+                    alert(`Wrong network detected. MetaMask is on network ${walletNetworkId}, but the contract is deployed on ${data.networkId}.\n\nPlease switch MetaMask to the correct Ganache network.`);
+                    return false;
+                }
+                
+                contractAddress = data.address;
+                contract = new web3.eth.Contract(data.abi, contractAddress);
+                
+                console.log('Web3 initialized with contract:', contractAddress);
+                return true;
+            } catch (error) {
+                console.error('Failed to initialize Web3:', error);
+                return false;
+            }
+        }
+
+        async function loadEscrowArtifact() {
+            const response = await fetch('/get-escrow-abi');
+            const data = await response.json();
+            if (!data || !data.abi || !data.bytecode) {
+                throw new Error('Escrow ABI not available. Please re-run migrations.');
+            }
+            escrowAbi = data.abi;
+            escrowBytecode = data.bytecode;
+        }
+
+        async function getSellerAddress(productId) {
+            const response = await fetch(`/get-product-seller/${productId}`);
+            const data = await response.json();
+            if (!data || !data.sellerAddress) {
+                throw new Error('Seller address not found for product');
+            }
+            return data.sellerAddress;
+        }
+        
+     
+        async function proceedToCheckout() {
+            <% if (cartItems && cartItems.length > 0) { %>
+            
+                const cartItemsData = JSON.parse('<%- JSON.stringify(cartItems) %>');
+                
+         
+                let subtotal = 0;
+                cartItemsData.forEach(item => {
+                    subtotal += item.price * item.quantity;
+                });
+                const tax = subtotal * 0.02;
+                let total = subtotal + tax;
+
+                // Apply token discount if any
+                if (discountApplied > 0) {
+                    total = Math.max(0, total - discountApplied);
+                }
+                
+                const confirmMsg = tokensApplied > 0 
+                    ? `Confirm purchase of ${cartItemsData.length} items for ${total.toFixed(3)} ETH?\n\nYou're applying ${tokensApplied} tokens as a seller incentive.\nThis will trigger MetaMask for payment once.`
+                    : `Confirm purchase of ${cartItemsData.length} items for ${total.toFixed(3)} ETH?\n\nThis will trigger MetaMask for payment once.`;
+                
+                if (!confirm(confirmMsg)) {
+                    return;
+                }
+                
+                try {
+                    
+                    const web3Initialized = await initWeb3();
+                    if (!web3Initialized) {
+                        alert('Please connect MetaMask to proceed with checkout.');
+                        await handleConnect();
+                        return;
+                    }
+
+                    if (!escrowAbi || !escrowBytecode) {
+                        await loadEscrowArtifact();
+                    }
+                    
+                    // Get connected account
+                    const accounts = await web3.eth.getAccounts();
+                    if (!accounts || accounts.length === 0) {
+                        alert('Please connect your wallet in MetaMask.');
+                        await handleConnect();
+                        return;
+                    }
+                    
+                    const fromAccount = accounts[0];
+                    
+                    // Show processing modal
+                    showProcessingModal('Processing your order...');
+                    
+                    // Validate all items first
+                    const results = [];
+                    for (const item of cartItemsData) {
+                        try {
+                            const productData = await contract.methods.getProduct(item.id).call();
+                            const currentStock = Number(productData[4]);
+                            
+                            if (currentStock < item.quantity) {
+                                results.push({
+                                    id: item.id,
+                                    name: item.name,
+                                    success: false,
+                                    error: `Only ${currentStock} in stock (requested: ${item.quantity})`
+                                });
+                            }
+                        } catch (error) {
+                            results.push({
+                                id: item.id,
+                                name: item.name,
+                                success: false,
+                                error: 'Failed to validate stock'
+                            });
+                        }
+                    }
+                    
+                    // If any items have validation errors, show them and stop
+                    const validationErrors = results.filter(r => !r.success);
+                    if (validationErrors.length > 0) {
+                        closeProcessingModal();
+                        showErrorModal(
+                            '❌ Validation Failed',
+                            'Some items could not be purchased:',
+                            validationErrors
+                        );
+                        return;
+                    }
+                    
+                    // Get seller address for first item (or use first seller if multiple)
+                    const firstItem = cartItemsData[0];
+                    const sellerAddress = await getSellerAddress(firstItem.id);
+                    
+                    // Deploy a single escrow contract for the entire order
+                    const escrowContract = new web3.eth.Contract(escrowAbi);
+                    const deployedEscrow = await escrowContract.deploy({
+                        data: escrowBytecode,
+                        arguments: [sellerAddress]
+                    }).send({
+                        from: fromAccount,
+                        gas: 3000000
+                    });
+
+                    // Fund the escrow ONCE with the total amount (with discount applied)
+                    const totalAmountWei = web3.utils.toWei(total.toString(), 'ether');
+                    await deployedEscrow.methods.fund().send({
+                        from: fromAccount,
+                        value: totalAmountWei,
+                        gas: 3000000
+                    });
+
+                    // Purchase each product
+                    const successfulPurchases = [];
+                    const failedPurchases = [];
+                    
+                    for (const item of cartItemsData) {
+                        try {
+                            await contract.methods.purchaseProductEscrow(item.id, item.quantity)
+                                .send({
+                                    from: fromAccount,
+                                    gas: 3000000
+                                });
+                            
+                            successfulPurchases.push({
+                                id: item.id,
+                                name: item.name,
+                                quantity: item.quantity,
+                                price: item.price,
+                                escrowAddress: deployedEscrow.options.address,
+                                tokensUsed: tokensApplied,
+                                discountUsed: discountApplied
+                            });
+                        } catch (itemError) {
+                            console.error(`Error purchasing ${item.name}:`, itemError);
+                            failedPurchases.push({
+                                id: item.id,
+                                name: item.name,
+                                quantity: item.quantity,
+                                error: itemError.message || 'Purchase failed'
+                            });
+                        }
+                    }
+                    
+                    // Close processing modal
+                    closeProcessingModal();
+                    
+                    // Create order records only for successful purchases
+                    if (successfulPurchases.length > 0) {
+                        try {
+                            await fetch('/create-orders-from-cart', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    items: successfulPurchases.map(s => ({
+                                        id: s.id,
+                                        quantity: s.quantity,
+                                        escrowAddress: s.escrowAddress,
+                                        tokensUsed: s.tokensUsed,
+                                        discountUsed: s.discountUsed
+                                    }))
+                                })
+                            });
+                        } catch (orderError) {
+                            console.error('Failed to create order records:', orderError);
+                        }
+                    }
+                    
+                    // Show results
+                    if (failedPurchases.length === 0) {
+                        // All successful - redeem tokens if any were used
+                        if (tokensApplied > 0) {
+                            try {
+                                await fetch('/redeem-loyalty-tokens', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        tokensToRedeem: tokensApplied,
+                                        orderId: successfulPurchases[0]?.id || null
+                                    })
+                                });
+                                console.log(`${tokensApplied} tokens redeemed`);
+                            } catch (redeemError) {
+                                console.error('Failed to redeem tokens:', redeemError);
+                            }
+                        }
+                        
+                        await clearCart();
+                        
+                        showSuccessModal(
+                            '🎉 Purchase Successful!',
+                            `You have purchased ${successfulPurchases.length} items for ${total.toFixed(3)} ETH.`,
+                            'View Products'
+                        );
+                        
+                    } else if (successfulPurchases.length > 0) {
+                        // Partial success - redeem tokens if any were used
+                        if (tokensApplied > 0) {
+                            try {
+                                await fetch('/redeem-loyalty-tokens', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        tokensToRedeem: tokensApplied,
+                                        orderId: successfulPurchases[0]?.id || null
+                                    })
+                                });
+                                console.log(`${tokensApplied} tokens redeemed`);
+                            } catch (redeemError) {
+                                console.error('Failed to redeem tokens:', redeemError);
+                            }
+                        }
+                        
+                        const successItems = successfulPurchases.map(s => `${s.name} (x${s.quantity})`).join(', ');
+                        
+                        showPartialSuccessModal(
+                            '⚠️ Partial Success',
+                            `Successfully purchased: ${successItems}\n\nFailed: ${failedPurchases.length} item(s)`,
+                            failedPurchases,
+                            'Continue Shopping'
+                        );
+                        
+                        // Remove successful items from cart
+                        await removeFromCart(successfulPurchases.map(s => s.id));
+                        
+                    } else {
+                        // All failed
+                        showErrorModal(
+                            '❌ Purchase Failed',
+                            'All items failed to purchase. Please try again.',
+                            failedPurchases
+                        );
+                    }
+                    
+                } catch (error) {
+                    console.error('Checkout error:', error);
+                    closeProcessingModal();
+                    alert('❌ Checkout failed: ' + (error.message || 'Unknown error'));
+                }
+            <% } else { %>
+                alert('Your cart is empty!');
+            <% } %>
+        }
+        
+        // Clear entire cart
+        async function clearCart() {
+            try {
+                const response = await fetch('/clear-cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to clear cart');
+                }
+                
+                console.log('Cart cleared successfully');
+                return true;
+            } catch (error) {
+                console.error('Error clearing cart:', error);
+                return false;
+            }
+        }
+        
+        // Remove specific items from cart
+        async function removeFromCart(itemIds) {
+            try {
+                const response = await fetch('/remove-multiple-from-cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ itemIds })
+                });
+                
+                return response.ok;
+            } catch (error) {
+                console.error('Error removing items:', error);
+                return false;
+            }
+        }
+        
+        // Modal functions
+        function showProcessingModal(message) {
+            const modal = document.createElement('div');
+            modal.id = 'processingModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 99999;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 2rem;
+                    border-radius: 12px;
+                    text-align: center;
+                    max-width: 400px;
+                    width: 90%;
+                ">
+                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                    <h5 class="mt-3">${message || 'Processing...'}</h5>
+                    <p class="text-muted mt-2">Please confirm the transaction in MetaMask</p>
+                    <p class="text-muted small">Do not close this window</p>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        function closeProcessingModal() {
+            const modal = document.getElementById('processingModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        function showSuccessModal(title, message, buttonText) {
+            const modal = document.createElement('div');
+            modal.id = 'successModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 99999;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 2rem;
+                    border-radius: 12px;
+                    text-align: center;
+                    max-width: 400px;
+                    width: 90%;
+                ">
+                    <div style="font-size: 4rem; color: #28a745;">✅</div>
+                    <h4 class="mt-3">${title}</h4>
+                    <p class="mt-2">${message}</p>
+                    <button onclick="window.location.href='/'" 
+                            style="
+                                background: #28a745;
+                                color: white;
+                                border: none;
+                                padding: 10px 30px;
+                                border-radius: 6px;
+                                font-weight: 600;
+                                margin-top: 1rem;
+                                cursor: pointer;
+                            ">
+                        ${buttonText}
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        function showPartialSuccessModal(title, message, failedItems, buttonText) {
+            const modal = document.createElement('div');
+            modal.id = 'partialModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 99999;
+            `;
+            
+            const failedList = failedItems.map(item => 
+                `• ${item.name}: ${item.error}`
+            ).join('<br>');
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 2rem;
+                    border-radius: 12px;
+                    text-align: center;
+                    max-width: 500px;
+                    width: 90%;
+                ">
+                    <div style="font-size: 4rem; color: #ffc107;">⚠️</div>
+                    <h4 class="mt-3">${title}</h4>
+                    <p class="mt-2">${message}</p>
+                    ${failedList ? `<div class="mt-3 p-2 bg-light text-start rounded"><small>${failedList}</small></div>` : ''}
+                    <div class="mt-3">
+                        <button onclick="window.location.href='/'" 
+                                style="
+                                    background: #ffc107;
+                                    color: #000;
+                                    border: none;
+                                    padding: 10px 30px;
+                                    border-radius: 6px;
+                                    font-weight: 600;
+                                    margin-top: 1rem;
+                                    cursor: pointer;
+                                ">
+                            ${buttonText}
+                        </button>
+                        <button onclick="document.getElementById('partialModal').remove(); location.reload();" 
+                                style="
+                                    background: #6c757d;
+                                    color: white;
+                                    border: none;
+                                    padding: 10px 30px;
+                                    border-radius: 6px;
+                                    font-weight: 600;
+                                    margin-top: 1rem;
+                                    margin-left: 10px;
+                                    cursor: pointer;
+                                ">
+                            View Updated Cart
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        function showErrorModal(title, message, failedItems) {
+            const modal = document.createElement('div');
+            modal.id = 'errorModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 99999;
+            `;
+            
+            const failedList = failedItems.map(item => 
+                `• ${item.name}: ${item.error}`
+            ).join('<br>');
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 2rem;
+                    border-radius: 12px;
+                    text-align: center;
+                    max-width: 500px;
+                    width: 90%;
+                ">
+                    <div style="font-size: 4rem; color: #dc3545;">❌</div>
+                    <h4 class="mt-3">${title}</h4>
+                    <p class="mt-2">${message}</p>
+                    ${failedList ? `<div class="mt-3 p-2 bg-light text-start rounded"><small>${failedList}</small></div>` : ''}
+                    <button onclick="document.getElementById('errorModal').remove()" 
+                            style="
+                                background: #dc3545;
+                                color: white;
+                                border: none;
+                                padding: 10px 30px;
+                                border-radius: 6px;
+                                font-weight: 600;
+                                margin-top: 1rem;
+                                cursor: pointer;
+                            ">
+                        Close
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        async function syncWallet(acct) {
+            try {
+                await fetch('/update-wallet', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ account: acct || '' })
+                });
+            } catch (error) {
+                console.warn('Wallet sync failed:', error);
+            }
+        }
+        
+        // Connect MetaMask
+        async function handleConnect() {
+            if (!window.ethereum) { 
+                alert('Please install MetaMask to connect your wallet.'); 
+                return; 
+            }
+            
+            try {
+                const buttons = document.querySelectorAll('#connectMetaMaskBtn');
+                buttons.forEach(btn => {
+                    if (btn) {
+                        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Connecting...';
+                        btn.disabled = true;
+                    }
+                });
+                
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const acct = accounts[0];
+                await syncWallet(acct);
+                
+                // Initialize Web3 after connection
+                await initWeb3();
+                
+                // Show success message
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show position-fixed top-0 end-0 m-3';
+                alertDiv.style.zIndex = '9999';
+                alertDiv.innerHTML = `
+                    <i class="bi bi-check-circle me-2"></i>
+                    <strong>Connected!</strong> Wallet connected successfully
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(alertDiv);
+                
+                setTimeout(() => alertDiv.remove(), 5000);
+                setTimeout(() => location.reload(), 1000);
+                
+            } catch (error) {
+                console.error('Connection error:', error);
+                alert('Failed to connect: ' + (error.message || 'Unknown error'));
+                
+                const buttons = document.querySelectorAll('#connectMetaMaskBtn');
+                buttons.forEach(btn => {
+                    if (btn) {
+                        btn.innerHTML = '<i class="bi bi-wallet2 me-2"></i>Connect Wallet';
+                        btn.disabled = false;
+                    }
+                });
+            }
+        }
+        
+        // ==================== LOYALTY TOKENS ====================
+        let currentTokenBalance = 0;
+        let tokensApplied = 0;
+        let discountApplied = 0;
+        let originalTotal = 0;
+
+        // Calculate total from cart items (mirroring the EJS calculation)
+        <% if (cartItems && cartItems.length > 0) { %>
+            <% 
+                let subtotal = 0;
+                cartItems.forEach(item => {
+                    subtotal += item.price * item.quantity;
+                });
+                const tax = subtotal * 0.02;
+                const calculatedTotal = subtotal + tax;
+            %>
+            originalTotal = <%= calculatedTotal %>;
+        <% } %>
+
+        async function loadTokenBalance() {
+            try {
+                const response = await fetch('/loyalty-balance');
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentTokenBalance = parseFloat(data.balance) || 0;
+                    const tokenBalanceEl = document.getElementById('tokenBalance');
+                    if (tokenBalanceEl) {
+                        tokenBalanceEl.textContent = `${currentTokenBalance.toFixed(2)} MST`;
+                        if (currentTokenBalance > 0) {
+                            tokenBalanceEl.classList.add('bg-success');
+                            tokenBalanceEl.classList.remove('bg-info');
+                        }
+                    }
+                } else {
+                    const tokenBalanceEl = document.getElementById('tokenBalance');
+                    if (tokenBalanceEl) {
+                        tokenBalanceEl.textContent = 'Connect wallet';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading token balance:', error);
+            }
+        }
+
+        async function applyTokenDiscount() {
+            const tokenInput = document.getElementById('tokenInput');
+            const tokensToUse = parseFloat(tokenInput?.value) || 0;
+            
+            if (tokensToUse === 0) {
+                resetDiscount();
+                return;
+            }
+
+            if (tokensToUse > currentTokenBalance) {
+                const msg = document.getElementById('tokenMessage');
+                if (msg) {
+                    msg.innerHTML = '<span class="text-danger"><i class="bi bi-exclamation-circle me-1"></i>Insufficient tokens</span>';
+                }
+                return;
+            }
+
+            try {
+                const response = await fetch('/apply-loyalty-discount', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tokensToUse: tokensToUse,
+                        cartTotal: originalTotal
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    tokensApplied = data.tokensUsed;
+                    discountApplied = data.discountAmount;
+                    const newTotal = data.newTotal;
+
+                    // Update UI
+                    const discountRow = document.getElementById('discountRow');
+                    if (discountRow) discountRow.style.display = 'flex';
+
+                    const discountAmount = document.getElementById('discountAmount');
+                    if (discountAmount) {
+                        discountAmount.innerHTML = `<span class="text-success">-<i class="bi bi-currency-ethereum"></i> ${discountApplied.toFixed(3)} ETH</span>`;
+                    }
+
+                    const finalTotal = document.getElementById('finalTotal');
+                    if (finalTotal) {
+                        finalTotal.innerHTML = `<i class="bi bi-currency-ethereum"></i> ${newTotal.toFixed(3)} ETH`;
+                    }
+
+                    const msg = document.getElementById('tokenMessage');
+                    if (msg) {
+                        msg.innerHTML = `<span class="text-success"><i class="bi bi-check-circle me-1"></i>${tokensToUse} tokens applied!</span>`;
+                    }
+                } else {
+                    const msg = document.getElementById('tokenMessage');
+                    if (msg) {
+                        msg.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-circle me-1"></i>${data.message}</span>`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error applying token discount:', error);
+                const msg = document.getElementById('tokenMessage');
+                if (msg) {
+                    msg.innerHTML = '<span class="text-danger"><i class="bi bi-exclamation-circle me-1"></i>Error applying tokens</span>';
+                }
+            }
+        }
+
+        function resetDiscount() {
+            tokensApplied = 0;
+            discountApplied = 0;
+            
+            const discountRow = document.getElementById('discountRow');
+            if (discountRow) discountRow.style.display = 'none';
+
+            const finalTotal = document.getElementById('finalTotal');
+            if (finalTotal) {
+                finalTotal.innerHTML = `<i class="bi bi-currency-ethereum"></i> ${originalTotal.toFixed(3)} ETH`;
+            }
+
+            const msg = document.getElementById('tokenMessage');
+            if (msg) msg.innerHTML = '';
+
+            const tokenInput = document.getElementById('tokenInput');
+            if (tokenInput) tokenInput.value = '0';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Connect button handlers
+            document.querySelectorAll('#connectMetaMaskBtn').forEach(btn => {
+                if (btn) btn.addEventListener('click', handleConnect);
+            });
+            
+            // Update cart item count in header
+            const itemCountElement = document.getElementById('itemCount');
+            if (itemCountElement) {
+                const itemCount = parseInt(itemCountElement.textContent) || 0;
+                if (itemCount > 0) {
+                    const cartBadge = document.querySelector('.navbar .badge');
+                    if (cartBadge) {
+                        cartBadge.textContent = itemCount;
+                    }
+                }
+            }
+            
+            // Initialize Web3 if MetaMask is already connected
+            if (window.ethereum && window.ethereum.selectedAddress) {
+                await initWeb3();
+                console.log('Auto-connected to MetaMask');
+            }
+            
+            // Load token balance on page load
+            await loadTokenBalance();
+            
+            // Add click handler to checkout button
+            const checkoutBtn = document.getElementById('checkoutBtn') || document.querySelector('.checkout-btn');
+            if (checkoutBtn) {
+                checkoutBtn.addEventListener('click', proceedToCheckout);
+            }
+
+            // Add click handler to apply token button
+            const applyTokenBtn = document.getElementById('applyTokenBtn');
+            if (applyTokenBtn) {
+                applyTokenBtn.addEventListener('click', applyTokenDiscount);
+            }
+
+            // Add enter key support to token input
+            const tokenInput = document.getElementById('tokenInput');
+            if (tokenInput) {
+                tokenInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') applyTokenDiscount();
+                });
+            }
+        });
+        
+        // Listen for MetaMask account changes
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', function(accounts) {
+                console.log('Account changed:', accounts[0]);
+                if (accounts.length === 0) {
+                    syncWallet('');
+                } else {
+                    syncWallet(accounts[0]);
+                }
+                location.reload();
+            });
+            
+            window.ethereum.on('chainChanged', function() {
+                console.log('Network changed');
+                location.reload();
+            });
+        }
+    </script>
+</body>
+</html>

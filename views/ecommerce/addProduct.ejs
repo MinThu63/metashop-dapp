@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title><%= isEdit ? 'Edit Product' : 'Add Product' %> - MetaShop Marketplace</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-sm navbar-custom">
+      <div class="container-fluid">
+        <img src="/images/book.webp" width="100" height="100" alt="Shop Logo" />
+        <a class="navbar-brand" href="/">MetaShop Marketplace</a>
+        <span class="navbar-brand mb-0 h1">Account: <%= acct %></span>
+      </div>
+    </nav>
+    <div class="container mt-4">
+      <h2><%= isEdit ? 'Edit Product' : 'Add Product' %></h2>
+      <form action="<%= isEdit ? ('/editProduct/' + product.id) : '/addProduct' %>" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="productId" value="<%= product ? product.id : '' %>">
+        <div class="mb-3"><label>Name</label><input name="name" class="form-control" required value="<%= product ? product.productInfo.name : '' %>"></div>
+        <div class="mb-3"><label>Price (ETH)</label><input type="number" step="0.0001" name="price" class="form-control" required value="<%= product ? product.productInfo.price : '' %>"></div>
+        <div class="mb-3">
+          <label>Category</label>
+          <select name="category" class="form-control" required>
+            <option value="">-- Select category --</option>
+            <option value="fashion" <%= product && product.productInfo.category === 'fashion' ? 'selected' : '' %>>Fashion</option>
+            <option value="electronics" <%= product && product.productInfo.category === 'electronics' ? 'selected' : '' %>>Electronics</option>
+            <option value="lifestyle" <%= product && product.productInfo.category === 'lifestyle' ? 'selected' : '' %>>Lifestyle</option>
+            <option value="home" <%= product && product.productInfo.category === 'home' ? 'selected' : '' %>>Home</option>
+            <option value="media" <%= product && product.productInfo.category === 'media' ? 'selected' : '' %>>Media</option>
+            <option value="secondhand" <%= product && product.productInfo.category === 'secondhand' ? 'selected' : '' %>>Second Hand</option>
+            <option value="health" <%= product && product.productInfo.category === 'health' ? 'selected' : '' %>>Health</option>
+          </select>
+        </div>
+        <div class="mb-3"><label>Stock</label><input type="number" name="stock" class="form-control" required value="<%= product ? product.stock : '' %>"></div>
+        <div class="mb-3"><label>Description</label><textarea name="description" class="form-control"><%= product ? product.productInfo.description : '' %></textarea></div>
+        <% if (!isEdit) { %>
+          <div class="mb-3"><label>Image</label><input type="file" name="image" class="form-control"></div>
+        <% } %>
+        <input type="hidden" id="addFunc" name="addFunc" value="registerProduct">
+        <button class="btn btn-primary" type="submit"><%= isEdit ? 'Update Product' : 'Create Product' %></button>
+      </form>
+    </div>
+  </body>
+</html>
